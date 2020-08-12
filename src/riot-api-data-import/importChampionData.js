@@ -90,7 +90,7 @@ async function importChampionData() {
       currentChampionCount++;
 
       // Sleep for 8 seconds to avoid hitting rate limit
-      await new Promise((r) => setTimeout(r, 8000));
+      await new Promise((r) => setTimeout(r, 20000));
     }
   } catch (error) {
     console.error(error);
