@@ -17,6 +17,8 @@ function parseResponse(data, key) {
  * Upsert into DB; this means check if a record with the key exists first and update that record if so; otherwise create a new record
  *
  * @param {object} parsedChampion A JSON object containing parsed chapmion data (data we actually need)
+ * @param {int} currentChampionCount An integer representing the current "number" champion being upserted.
+ * @param {int} totalChampions An integer representing the total number of champions.
  *
  * @return {response} Returns response based on outcome of upsert attempt.
  */
