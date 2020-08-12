@@ -1,17 +1,12 @@
-const Express = require("express");
+require("dotenv").config();
+const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const { notFound, errorHandler } = require("./middlewares");
 const middlewares = require("./middlewares");
-const mongoose = require("mongoose");
-const twisted = require("twisted");
-require("dotenv").config();
-
-// Connection to MongoDB
-mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true });
 
 // Create new express application
-const app = Express();
+const app = express();
 
 // Logger and Cors middleware for request logging/permission
 app.use(morgan("common"));

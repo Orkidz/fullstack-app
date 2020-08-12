@@ -1,18 +1,56 @@
-const { LolApi, Constants } = require("twisted");
-require("dotenv").config();
+const { LolApi } = require("twisted");
+const { Champion } = require("../models/data.js");
 
-const api = new LolApi();
-
+/**
+ * Helper function to parse Riot API response
+ *
+ * @param {object} data An JSON object returned by Riot's API
+ * @param {string} key Return specific key from data JSON obkect.
+ *
+ * @return {Object} Returns JS object we can easily parse.
+ */
 function parseResponse(data, key) {
   return JSON.parse(JSON.stringify(data))[key];
 }
 
+/**
+ * Upsert into DB; this means check if a record with the key exists first and update that record if so; otherwise create a new record
+ *
+ * @param {object} parsedChampion A JSON object containing parsed chapmion data (data we actually need)
+ *
+ * @return {response} Returns response based on outcome of upsert attempt.
+ */
+function upsertParsedChampion(
+  parsedChampion,
+  currentChampionCount,
+  totalChampions
+) {
+  var query = { key: parsedChampion["key"] };
+  Champion.findOneAndUpdate(query, parsedChampion, { upsert: true }, function (
+    err,
+    doc
+  ) {
+    if (err) console.log(err);
+    console.log(
+      "Succesfully saved (" + currentChampionCount + "/" + totalChampions + ")."
+    );
+  });
+}
+
+/**
+ * Grabs and parses champion data from Riot's API so we can store information needed to play guessing game.
+ */
 async function importChampionData() {
   try {
+    const api = new LolApi();
+
     let championListData = parseResponse(
       await api.DataDragon.getChampion(),
       "data"
     );
+
+    let currentChampionCount = 1;
+    let totalChampions = Object.keys(championListData).length;
 
     for (var championKey in championListData) {
       let currentChampion = championListData[championKey];
@@ -43,10 +81,16 @@ async function importChampionData() {
         "image"
       ] = `http://ddragon.leagueoflegends.com/cdn/${parsedChampion["version"]}/img/champion/${parsedChampion["image"]["full"]}`;
 
-      // Insert parsedChampion into DB here
-      console.log(parsedChampion);
+      upsertParsedChampion(
+        parsedChampion,
+        currentChampionCount,
+        totalChampions
+      );
 
-      await new Promise((r) => setTimeout(r, 3000));
+      currentChampionCount++;
+
+      // Sleep for 8 seconds to avoid hitting rate limit
+      await new Promise((r) => setTimeout(r, 8000));
     }
   } catch (error) {
     console.error(error);

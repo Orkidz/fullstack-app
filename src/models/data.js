@@ -1,30 +1,36 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+require("dotenv").config({ path: "../.env" });
+const Schema = require("mongoose").Schema;
+const mongoose = require("mongoose");
 
+// Connection to MongoDB
+const uri = process.env.DB_CONNECTION;
+mongoose.connect(uri, { useNewUrlParser: true });
+var db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-// Champion Data Schema
 const championSchema = new Schema({
-  id:  Number,
+  version: String,
+  id: String,
+  key: String,
   name: String,
-  image:   URL,
-  skins: Number
+  title: String,
+  blurb: String,
+  image: String,
+  skinCount: Number,
 });
 
-// User Data Schema
 const userSchema = new Schema({
-    username: {
-        required: true,
-        type: String,
-    },
-    highscore: Number
+  username: {
+    required: true,
+    type: String,
+  },
+  highscore: Number,
 });
 
-// Mongoose model objects that user our defined Schema
-const Champion = mongoose.model('Champion', championSchema);
-const User = mongoose.model('User', userSchema);
+const Champion = db.model("Champion", championSchema);
+const User = db.model("User", userSchema);
 
-// Export sed Objects
 module.exports = {
-    Champion,
-    User,
+  Champion,
+  User,
 };
