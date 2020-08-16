@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const { notFound, errorHandler } = require("./middlewares");
 const middlewares = require("./middlewares");
+const { Champion } = require("./models/data.js");
 
 // Create new express application
 const app = express();
@@ -16,9 +17,19 @@ app.use(
   })
 );
 
-//Route
+//Routes
 app.get("/", (req, res) => {
   res.send("Hello World");
+});
+
+app.get("/champions", (req, res) => {
+  Champion.find({}, function (err, result) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json(result);
+    }
+  });
 });
 
 // Error middlewares
